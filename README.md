@@ -1,0 +1,1 @@
+We plan to build an app that will allow you to access data similar to Spotify Wrapped and more. Current features planned will be a Top Artists section, Top Genre, Minutes listened, and how many different songs you've listened to.
