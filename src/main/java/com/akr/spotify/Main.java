@@ -6,15 +6,19 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import io.github.cdimascio.dotenv.Dotenv; //
 
 public class Main {
-    private static final int PORT = 8080; // Must match your redirect URL port
+    private static final int PORT = 8080;
     private static String authorizationCode;
     private static final CountDownLatch latch = new CountDownLatch(1);
 
     public static void main(String[] args) {
-        String clientId = "acdc61d55c7e4fef9a4149183888a647";
-        String clientSecret = "2efd9c410d5a4fdc9f3e555921a03f55";
+
+        Dotenv dotenv = Dotenv.load(); //
+        String clientId = dotenv.get("clientId"); //
+        String clientSecret = dotenv.get("clientSecret"); //
+
         String redirectUrl = "http://localhost:" + PORT + "/callback";
 
         try {
@@ -25,14 +29,13 @@ public class Main {
                     String query = exchange.getRequestURI().getQuery();
                     authorizationCode = query.split("code=")[1].split("&")[0];
 
-                    // Send response to browser
-                    String response = "Authorization complete! You may close this window.";
+                    String response = "You may now close this window.";
                     exchange.sendResponseHeaders(200, response.length());
                     try (OutputStream os = exchange.getResponseBody()) {
                         os.write(response.getBytes());
                     }
 
-                    latch.countDown(); // Release the main thread
+                    latch.countDown();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
