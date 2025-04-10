@@ -79,10 +79,12 @@ public class SpotifyApiClient {
     }
 
     //https://developer.spotify.com/documentation/web-api/concepts/api-calls
-    public String getSongReleaseYear(Track track) { //hand
+    public Integer getSongReleaseYear(Track track) { //hand
 
         String date = track.album.release_date;
-        return date;
+        date = date.substring(0,4);
+
+        return Integer.parseInt(date);
 
     }
 
