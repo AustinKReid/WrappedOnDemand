@@ -64,6 +64,11 @@ public class Main {
                 System.out.println((i + 1) + ". " + topTracks.get(i));
             }
 
+            if (!topTracks.isEmpty()) { //hand
+                SpotifyApiClient.Track firstTrack = topTracks.get(1);
+                System.out.println("LOOK HERE ->>>> DATE " + spotifyClient.getSongReleaseYear(firstTrack));
+            }
+
         } catch (IOException | InterruptedException e) {
             System.err.println("Error: " + e.getMessage());
         }

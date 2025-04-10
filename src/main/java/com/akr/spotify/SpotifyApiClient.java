@@ -1,10 +1,12 @@
 package com.akr.spotify;
 
 import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 import okhttp3.*;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
+import java.util.ArrayList;
 
 public class SpotifyApiClient {
     private final String clientId;
@@ -66,7 +68,7 @@ public class SpotifyApiClient {
                 .build();
 
         try (Response response = httpClient.newCall(request).execute()) {
-            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+            if (!response.isSuccessful()) throw new IOException("Error " + response);
 
             TopTracksResponse tracksResponse = gson.fromJson(
                     response.body().string(),
@@ -74,6 +76,14 @@ public class SpotifyApiClient {
             );
             return tracksResponse.items;
         }
+    }
+
+    //https://developer.spotify.com/documentation/web-api/concepts/api-calls
+    public String getSongReleaseYear(Track track) { //hand
+
+        String date = track.album.release_date;
+        return date;
+
     }
 
     // Response classes
@@ -121,6 +131,8 @@ public class SpotifyApiClient {
         String name;
         List<Image> images;
         String uri;
+        @SerializedName("release_date") //hand
+        String release_date;
     }
 
     public static class Image {
