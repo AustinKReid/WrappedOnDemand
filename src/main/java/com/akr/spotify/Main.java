@@ -4,9 +4,11 @@ import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.sql.SQLOutput;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import io.github.cdimascio.dotenv.Dotenv; //
+import static spark.Spark.*;
 
 public class Main {
     private static final int PORT = 8080;
@@ -21,6 +23,11 @@ public class Main {
 
         String redirectUrl = "http://localhost:" + PORT + "/callback";
 
+        get("/auth-url", (req, res) -> {
+            res.type("application/json");
+            return "{ \"url\": \"" + redirectUrl + "\" }";
+        });
+
         try {
             // Start the callback server
             HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
@@ -29,7 +36,7 @@ public class Main {
                     String query = exchange.getRequestURI().getQuery();
                     authorizationCode = query.split("code=")[1].split("&")[0];
 
-                    String response = "You may now close this window.";
+                    String response = "Authorization Complete";
                     exchange.sendResponseHeaders(200, response.length());
                     try (OutputStream os = exchange.getResponseBody()) {
                         os.write(response.getBytes());
@@ -44,29 +51,23 @@ public class Main {
 
             SpotifyApiClient spotifyClient = new SpotifyApiClient(clientId, clientSecret, redirectUrl);
 
-            System.out.println("1. Opening authorization in your browser...");
+            System.out.println("1. Opening Authorization In Browser");
             System.out.println(spotifyClient.getAuthorizationUrl());
 
-            // Wait for the callback
-            System.out.println("\n2. Waiting for authorization...");
+            System.out.println("\n2. Waiting For Authorization");
             latch.await();
-            server.stop(0); // Shutdown server after getting the code
+            server.stop(0);
 
             System.out.println("3. Exchanging code for access token...");
             String accessToken = spotifyClient.getAccessToken(authorizationCode);
-            System.out.println("Successfully obtained access token!");
+            System.out.println("Access Token Received!");
 
-            System.out.println("\n4. Fetching your top tracks...");
+            System.out.println("\n4. Fetching Top Tracks");
             List<SpotifyApiClient.Track> topTracks = spotifyClient.getTopTracks(accessToken);
 
             System.out.println("\nYour Top Tracks:");
             for (int i = 0; i < topTracks.size(); i++) {
-                System.out.println((i + 1) + ". " + topTracks.get(i));
-            }
-
-            if (!topTracks.isEmpty()) { //hand
-                SpotifyApiClient.Track firstTrack = topTracks.get(1);
-                System.out.println("LOOK HERE ->>>> DATE " + spotifyClient.getSongReleaseYear(firstTrack));
+                System.out.println((i + 1) + ". " + topTracks.get(i) + " Released In " + spotifyClient.getSongReleaseYear(topTracks.get(i)));
             }
 
         } catch (IOException | InterruptedException e) {
