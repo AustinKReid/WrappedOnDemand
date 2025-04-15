@@ -6,7 +6,6 @@ import okhttp3.*;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
-import java.util.ArrayList;
 
 public class SpotifyApiClient {
     private final String clientId;
@@ -88,33 +87,44 @@ public class SpotifyApiClient {
 
     }
 
-    // Response classes
+    //hand
+    public List<Artist> getTopArtists(String accessToken) throws IOException {
+        String url = API_URL + "/me/top/artists?time_range=medium_term&limit=5";
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization","Bearer " + accessToken)
+                .build();
+
+        try (Response response = httpClient.newCall(request).execute()) {
+            if (!response.isSuccessful()) throw new IOException("Error " + response);
+
+            TopArtistsResponse artistsResponse = gson.fromJson(
+                    response.body().string(),
+                    TopArtistsResponse.class
+            );
+            return artistsResponse.items;
+
+        }
+    }
+
     private static class TokenResponse {
         String access_token;
-        String token_type;
-        int expires_in;
-        String refresh_token;
-        String scope;
     }
 
     public static class TopTracksResponse {
         List<Track> items;
-        int total;
-        int limit;
-        int offset;
-        String href;
-        String next;
-        String previous;
+    }
+
+    //hand
+    public static class TopArtistsResponse {
+        List<Artist> items;
     }
 
     public static class Track {
-        public String id;
         public String name;
         public List<Artist> artists;
         public Album album;
-        public int duration_ms;
-        public int popularity;
-        public String uri;
 
         @Override
         public String toString() {
@@ -123,23 +133,17 @@ public class SpotifyApiClient {
     }
 
     public static class Artist {
-        String id;
         String name;
-        String uri;
+
+        //hand
+        @Override
+        public String toString() {
+            return name != null ? name : "Unknown Artist";
+        }
     }
 
     public static class Album {
-        String id;
-        String name;
-        List<Image> images;
-        String uri;
         @SerializedName("release_date") //hand
         String release_date;
-    }
-
-    public static class Image {
-        String url;
-        Integer height;
-        Integer width;
     }
 }

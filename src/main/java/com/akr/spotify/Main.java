@@ -1,10 +1,9 @@
-package com.akr.spotify; //test
+package com.akr.spotify;
 
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.sql.SQLOutput;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import io.github.cdimascio.dotenv.Dotenv; //
@@ -66,9 +65,22 @@ public class Main {
             List<SpotifyApiClient.Track> topTracks = spotifyClient.getTopTracks(accessToken);
 
             System.out.println("\nYour Top Tracks:");
+
+            //hand
+            int years = 0;
+
             for (int i = 0; i < topTracks.size(); i++) {
                 System.out.println((i + 1) + ". " + topTracks.get(i) + " Released In " + spotifyClient.getSongReleaseYear(topTracks.get(i)));
+                years = years + spotifyClient.getSongReleaseYear(topTracks.get(i));
             }
+
+            //hand
+            System.out.println("Average Year of Song " + years/50);
+
+
+            List<SpotifyApiClient.Artist> topArtists = spotifyClient.getTopArtists(accessToken);
+
+            System.out.println(topArtists);
 
         } catch (IOException | InterruptedException e) {
             System.err.println("Error: " + e.getMessage());
