@@ -8,6 +8,7 @@ import java.sql.SQLOutput;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import io.github.cdimascio.dotenv.Dotenv; //
+import static spark.Spark.*;
 
 public class Main {
     private static final int PORT = 8080;
@@ -21,6 +22,11 @@ public class Main {
         String clientSecret = dotenv.get("clientSecret"); //
 
         String redirectUrl = "http://localhost:" + PORT + "/callback";
+
+        get("/auth-url", (req, res) -> {
+            res.type("application/json");
+            return "{ \"url\": \"" + redirectUrl + "\" }";
+        });
 
         try {
             // Start the callback server
