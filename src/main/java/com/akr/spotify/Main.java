@@ -4,6 +4,8 @@ import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import io.github.cdimascio.dotenv.Dotenv; //
@@ -79,7 +81,17 @@ public class Main {
 
             get("/", (req, res) -> {
                 res.type("text/html");
-                return "{ \" + top50List + \" }";
+                return Files.readString(Paths.get("src/main/resources/public/index.html")); // adjust path
+            });
+
+// Endpoint that returns top50List as plain text or JSON
+            String finalTop50List = top50List;
+            get("/data", (req, res) -> {
+                res.type("application/json");
+
+                // Escape top50List for JSON
+                String escapedTop50 = finalTop50List.replace("\n", "\\n").replace("\"", "\\\"");
+                return "{ \"top50\": \"" + escapedTop50 + "\" }";
             });
 
             //hand
