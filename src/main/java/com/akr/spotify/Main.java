@@ -8,22 +8,24 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import io.github.cdimascio.dotenv.Dotenv; //
+import io.github.cdimascio.dotenv.Dotenv;
+
 import static spark.Spark.*;
 
 public class Main {
     private static final int PORT = 8080;
     private static String authorizationCode;
     private static final CountDownLatch latch = new CountDownLatch(1);
+    private static volatile String top50List = null;
 
     public static void main(String[] args) {
 
-        String top50List = "";
+        Dotenv dotenv = Dotenv.configure()
+                .directory(System.getProperty("user.dir"))
+                .load();
 
-        Dotenv dotenv = Dotenv.load(); //
-        String clientId = dotenv.get("clientId"); //
-        String clientSecret = dotenv.get("clientSecret"); //
-
+        String clientId = dotenv.get("clientId");
+        String clientSecret = dotenv.get("clientSecret");
         String redirectUrl = "http://localhost:" + PORT + "/callback";
 
         get("/auth-url", (req, res) -> {
@@ -68,38 +70,41 @@ public class Main {
             System.out.println("\n4. Fetching Top Tracks");
             List<SpotifyApiClient.Track> topTracks = spotifyClient.getTopTracks(accessToken);
 
-            System.out.println("\nYour Top Tracks:");
-
-            //hand
             int years = 0;
-
+            StringBuilder sb = new StringBuilder();
             for (int i = 0; i < topTracks.size(); i++) {
-                System.out.println((i + 1) + ". " + topTracks.get(i) + " Released In " + spotifyClient.getSongReleaseYear(topTracks.get(i)));
-                top50List+=((i + 1) + ". " + topTracks.get(i) + " Released In " + spotifyClient.getSongReleaseYear(topTracks.get(i))+"\n");
-                years = years + spotifyClient.getSongReleaseYear(topTracks.get(i));
+                String line = (i + 1) + ". " + topTracks.get(i) + " Released In " + spotifyClient.getSongReleaseYear(topTracks.get(i));
+                System.out.println(line);
+                sb.append(line).append("\n");
+                years += spotifyClient.getSongReleaseYear(topTracks.get(i));
             }
+            top50List = sb.toString(); // <-- Set shared data
 
             get("/", (req, res) -> {
                 res.type("text/html");
-                return Files.readString(Paths.get("src/main/resources/public/index.html")); // adjust path
+                return Files.readString(Paths.get("src/main/resources/public/index.html"));
             });
 
-// Endpoint that returns top50List as plain text or JSON
-            String finalTop50List = top50List;
             get("/data", (req, res) -> {
                 res.type("application/json");
 
-                // Escape top50List for JSON
-                String escapedTop50 = finalTop50List.replace("\n", "\\n").replace("\"", "\\\"");
-                return "{ \"top50\": \"" + escapedTop50 + "\" }";
+                // Wait for top50List to be filled (up to 10 seconds)
+                int waited = 0;
+                while (top50List == null && waited < 10000) {
+                    Thread.sleep(100);
+                    waited += 100;
+                }
+
+                if (top50List == null) {
+                    return "{ \"error\": \"Data not ready\" }";
+                }
+
+                String escaped = top50List.replace("\n", "\\n").replace("\"", "\\\"");
+                return "{ \"top50\": \"" + escaped + "\" }";
             });
 
-            //hand
-            System.out.println("Average Year of Song " + years/50);
-
-
+            System.out.println("Average Year of Song: " + (years / 50));
             List<SpotifyApiClient.Artist> topArtists = spotifyClient.getTopArtists(accessToken);
-
             System.out.println(topArtists);
 
         } catch (IOException | InterruptedException e) {
