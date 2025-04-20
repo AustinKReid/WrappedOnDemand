@@ -4,24 +4,8 @@
     <title>Spotify Dashboard</title>
 </head>
 <body>
-<h1>Welcome to Your Spotify Data Viewer</h1>
-<button onclick="login()">Log in with Spotify</button>
-<div id="results"></div>
-
-<script>
-    function login() {
-      window.location.href = 'http://localhost:4567/login';
-    }
-
-    // You could add code here to fetch data after authentication
-    async function loadTopTracks() {
-      const res = await fetch("http://localhost:4567/api/user/top");
-      const data = await res.json();
-      document.getElementById("results").innerText = JSON.stringify(data, null, 2);
-    }
-
-    // Optional: auto-fetch after login
-    // loadTopTracks();
-</script>
+<<h1></h1>
+<div ></div>
+<script src=script.js></script></body></html>
 </body>
 </html>

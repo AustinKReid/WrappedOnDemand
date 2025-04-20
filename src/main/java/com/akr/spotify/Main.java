@@ -16,6 +16,8 @@ public class Main {
 
     public static void main(String[] args) {
 
+        String top50List = "";
+
         Dotenv dotenv = Dotenv.load(); //
         String clientId = dotenv.get("clientId"); //
         String clientSecret = dotenv.get("clientSecret"); //
@@ -71,8 +73,14 @@ public class Main {
 
             for (int i = 0; i < topTracks.size(); i++) {
                 System.out.println((i + 1) + ". " + topTracks.get(i) + " Released In " + spotifyClient.getSongReleaseYear(topTracks.get(i)));
+                top50List+=((i + 1) + ". " + topTracks.get(i) + " Released In " + spotifyClient.getSongReleaseYear(topTracks.get(i))+"\n");
                 years = years + spotifyClient.getSongReleaseYear(topTracks.get(i));
             }
+
+            get("/", (req, res) -> {
+                res.type("text/html");
+                return "{ \" + top50List + \" }";
+            });
 
             //hand
             System.out.println("Average Year of Song " + years/50);
