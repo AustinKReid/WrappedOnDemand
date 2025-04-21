@@ -1,16 +1,15 @@
 function fetchDataUntilReady() {
-    fetch('http://localhost:3000/data')
-        .then(res => {
-            return res.json();
-        })
+    fetch('/data')
+        .then(res => res.json())
         .then(data => {
-            if (data.top50 && data.top50.trim() !== "") {
+            if (data.top50) {
                 document.getElementById('message').textContent = data.top50;
             } else {
                 setTimeout(fetchDataUntilReady, 500);
             }
         })
         .catch(err => {
+            console.error('Error:', err);
             setTimeout(fetchDataUntilReady, 1000);
         });
 }
