@@ -13,12 +13,15 @@ import io.github.cdimascio.dotenv.Dotenv;
 import static spark.Spark.*;
 
 public class Main {
+    private static final int WEB_PORT = 3000;
     private static final int PORT = 8080;
     private static String authorizationCode;
     private static final CountDownLatch latch = new CountDownLatch(1);
     private static volatile String top50List = null;
 
     public static void main(String[] args) {
+        port(WEB_PORT);
+        staticFiles.location("/public");
 
         Dotenv dotenv = Dotenv.configure()
                 .directory(System.getProperty("user.dir"))
@@ -86,6 +89,7 @@ public class Main {
             });
 
             get("/data", (req, res) -> {
+                System.out.println("GET /data called");
                 res.type("application/json");
 
                 // Wait for top50List to be filled (up to 10 seconds)
