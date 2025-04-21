@@ -81,7 +81,13 @@ public class Main {
                 sb.append(line).append("\n");
                 years += spotifyClient.getSongReleaseYear(topTracks.get(i));
             }
-            top50List = sb.toString(); // <-- Set shared data
+
+            System.out.println("Average Year of Song: " + (years / 50));
+            List<SpotifyApiClient.Artist> topArtists = spotifyClient.getTopArtists(accessToken);
+            System.out.println(topArtists);
+
+            top50List = sb.toString();
+            top50List+=("\nYour top 5 favorite artists are: "+topArtists+"\nYour average listening year is: "+ (years / 50));
 
             get("/", (req, res) -> {
                 res.type("text/html");
@@ -91,7 +97,6 @@ public class Main {
             get("/data", (req, res) -> {
                 res.type("application/json");
 
-                // Wait for top50List to be filled (up to 10 seconds)
                 int waited = 0;
                 while (top50List == null && waited < 10000) {
                     Thread.sleep(100);
@@ -105,10 +110,6 @@ public class Main {
                 String escaped = top50List.replace("\n", "\\n").replace("\"", "\\\"");
                 return "{ \"top50\": \"" + escaped + "\" }";
             });
-
-            System.out.println("Average Year of Song: " + (years / 50));
-            List<SpotifyApiClient.Artist> topArtists = spotifyClient.getTopArtists(accessToken);
-            System.out.println(topArtists);
 
         } catch (IOException | InterruptedException e) {
             System.err.println("Error: " + e.getMessage());
