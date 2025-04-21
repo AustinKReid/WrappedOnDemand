@@ -89,7 +89,6 @@ public class Main {
             });
 
             get("/data", (req, res) -> {
-                System.out.println("GET /data called");
                 res.type("application/json");
 
                 // Wait for top50List to be filled (up to 10 seconds)
