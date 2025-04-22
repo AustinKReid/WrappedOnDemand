@@ -1,3 +1,4 @@
+//Function to grab the data from java
 function fetchDataUntilReady() {
     fetch('/data')
         .then(res => res.json())

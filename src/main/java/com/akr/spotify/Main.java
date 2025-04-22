@@ -20,7 +20,9 @@ public class Main {
     private static volatile String top50List = null;
 
     public static void main(String[] args) {
+        //sets the port to be used by spark to 3000 to differentiate from the port used by Spotify
         port(WEB_PORT);
+        //confirms that spark links to the right files
         staticFiles.location("/public");
 
         Dotenv dotenv = Dotenv.configure()
@@ -30,11 +32,6 @@ public class Main {
         String clientId = dotenv.get("clientId");
         String clientSecret = dotenv.get("clientSecret");
         String redirectUrl = "http://localhost:" + PORT + "/callback";
-
-        get("/auth-url", (req, res) -> {
-            res.type("application/json");
-            return "{ \"url\": \"" + redirectUrl + "\" }";
-        });
 
         try {
             HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
@@ -72,6 +69,7 @@ public class Main {
             System.out.println("\n4. Fetching Top Tracks");
             List<SpotifyApiClient.Track> topTracks = spotifyClient.getTopTracks(accessToken);
 
+            //String builder in order to convert data into an easily transferable string
             int years = 0;
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < topTracks.size(); i++) {
@@ -85,9 +83,11 @@ public class Main {
             List<SpotifyApiClient.Artist> topArtists = spotifyClient.getTopArtists(accessToken);
             System.out.println(topArtists);
 
+            //Converts sb to a string and adds on top artists and year
             top50List = sb.toString();
             top50List+=("\nYour top 5 favorite artists are: "+topArtists+"\nYour average listening year is: "+ (years / 50));
 
+            //prepares string to be sent to the js
             get("/", (req, res) -> {
                 res.type("text/html");
                 return Files.readString(Paths.get("src/main/resources/public/index.html"));
@@ -96,6 +96,7 @@ public class Main {
             get("/data", (req, res) -> {
                 res.type("application/json");
 
+                //makes sure that the data can load
                 int waited = 0;
                 while (top50List == null && waited < 10000) {
                     Thread.sleep(100);
