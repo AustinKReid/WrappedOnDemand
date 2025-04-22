@@ -1,7 +1,8 @@
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 1.25em;
+    font-family: 'Outfit', sans-serif;
     background-color: #121212;
     color: #FFFFFF;
 }
@@ -17,7 +18,8 @@ h1 {
 
 #message {
     white-space: pre-wrap;
-    font-size: 1.05em;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.15em;
     padding: 30px;
     max-width: 900px;
     margin: 20px auto;

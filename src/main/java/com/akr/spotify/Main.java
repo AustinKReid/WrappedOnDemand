@@ -37,7 +37,6 @@ public class Main {
         });
 
         try {
-            // Start the callback server
             HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
             server.createContext("/callback", exchange -> {
                 try {
