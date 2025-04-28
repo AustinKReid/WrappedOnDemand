@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import io.github.cdimascio.dotenv.Dotenv; //
+import io.github.cdimascio.dotenv.Dotenv;
 import static spark.Spark.*;
 
 public class Main {
@@ -16,9 +16,9 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Dotenv dotenv = Dotenv.load(); //
-        String clientId = dotenv.get("clientId"); //
-        String clientSecret = dotenv.get("clientSecret"); //
+        Dotenv dotenv = Dotenv.load();
+        String clientId = dotenv.get("clientId");
+        String clientSecret = dotenv.get("clientSecret");
 
         String redirectUrl = "http://localhost:" + PORT + "/callback";
 
@@ -66,7 +66,6 @@ public class Main {
 
             System.out.println("\nYour Top Tracks:");
 
-            //hand
             int years = 0;
 
             for (int i = 0; i < topTracks.size(); i++) {
@@ -74,7 +73,6 @@ public class Main {
                 years = years + spotifyClient.getSongReleaseYear(topTracks.get(i));
             }
 
-            //hand
             System.out.println("Average Year of Song " + years/50);
 
 

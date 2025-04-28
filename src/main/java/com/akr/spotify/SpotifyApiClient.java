@@ -18,6 +18,14 @@ public class SpotifyApiClient {
     private static final String TOKEN_URL = "https://accounts.spotify.com/api/token";
     private static final String API_URL = "https://api.spotify.com/v1";
 
+
+    /**
+     * Constructor
+     * @param clientId ID of the client
+     * @param clientSecret Secret Key of the client
+     * @param redirectUri Redirect URL to be opened after authentication
+     */
+
     public SpotifyApiClient(String clientId, String clientSecret, String redirectUri) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
@@ -26,6 +34,12 @@ public class SpotifyApiClient {
         this.gson = new Gson();
     }
 
+
+    /**
+     * Creates and returns the URL for authorization
+     * @return authorization URL
+     */
+
     public String getAuthorizationUrl() {
         return AUTH_URL + "?client_id=" + clientId +
                 "&response_type=code" +
@@ -33,6 +47,13 @@ public class SpotifyApiClient {
                 "&scope=user-top-read" +
                 "&show_dialog=true";
     }
+
+    /**
+     * Gets the accesstoken for
+     * @param authorizationCode the authorization code recieved from Spotify
+     * @return the access token as a string
+     * @throws IOException error handling HTTP fails or whatnot
+     */
 
     public String getAccessToken(String authorizationCode) throws IOException {
         String credentials = clientId + ":" + clientSecret;
@@ -58,6 +79,13 @@ public class SpotifyApiClient {
         }
     }
 
+    /**
+     * Gets the list of top tracks
+     * @param accessToken access token for the Spotify API
+     * @return list of top tracks
+     * @throws IOException if HTTP fails
+     */
+
     public List<Track> getTopTracks(String accessToken) throws IOException {
         String url = API_URL + "/me/top/tracks?time_range=medium_term&limit=50";
 
@@ -78,6 +106,13 @@ public class SpotifyApiClient {
     }
 
     //https://developer.spotify.com/documentation/web-api/concepts/api-calls
+
+    /**
+     * Gets the release year of a certain song
+     * @param track the track to get the release year of
+     * @return release year as an integer
+     */
+
     public Integer getSongReleaseYear(Track track) { //hand
 
         String date = track.album.release_date;
@@ -87,7 +122,13 @@ public class SpotifyApiClient {
 
     }
 
-    //hand
+    /**
+     * Hand - Gets the list of top artists
+     * @param accessToken accessToken with which to access the Spotify API
+     * @return the list of top 5 artists
+     * @throws IOException if HTTP fails
+     */
+
     public List<Artist> getTopArtists(String accessToken) throws IOException {
         String url = API_URL + "/me/top/artists?time_range=medium_term&limit=5";
 
@@ -108,18 +149,33 @@ public class SpotifyApiClient {
         }
     }
 
+    /**
+     * Helper method for getting the access token
+     */
+
     private static class TokenResponse {
         String access_token;
     }
+
+    /**
+     * Helper method for getting the top tracks
+     */
 
     public static class TopTracksResponse {
         List<Track> items;
     }
 
-    //hand
+    /**
+     * Helper method for getting the top artists
+     */
+
     public static class TopArtistsResponse {
         List<Artist> items;
     }
+
+    /**
+     * Represents a track
+     */
 
     public static class Track {
         public String name;
@@ -132,6 +188,10 @@ public class SpotifyApiClient {
         }
     }
 
+    /**
+     * Represents an Artist
+     */
+
     public static class Artist {
         String name;
 
@@ -141,6 +201,10 @@ public class SpotifyApiClient {
             return name != null ? name : "Unknown Artist";
         }
     }
+
+    /**
+     * Represents an Album
+     */
 
     public static class Album {
         @SerializedName("release_date") //hand
